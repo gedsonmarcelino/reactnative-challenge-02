@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, Image, TouchableOpacity, View, Text, StyleSheet, FlatListProps, TextInput } from 'react-native';
+import { Image, TouchableOpacity, View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { ItemWrapper } from './ItemWrapper';
@@ -22,9 +22,27 @@ export function TasksListItem({ task, toggleTaskDone, removeTask, editTask }: Ta
   const [isEditing, setIsEditing] = useState(false)
   const [text, setText] = useState(task.title)
 
+  function handleRemoveTask(id: number) {
+    Alert.alert(
+      'Remover Item',
+      'Tem certeza que deseja remover este item?',
+      [
+        {
+          text: "Sim",
+          onPress: () => removeTask(id),
+        },
+        {
+          text: "Não",
+          onPress: () => console.log('It was canceled'),
+          style: "cancel",
+        },
+      ],
+    )
+  }
+
   return (
     <>
-      <View>
+      <View style={{ flex: 8 }}>
         <TouchableOpacity
           testID={`button-${task.id}`}
           activeOpacity={0.7}
@@ -62,26 +80,36 @@ export function TasksListItem({ task, toggleTaskDone, removeTask, editTask }: Ta
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        testID={`trash-edit-${task.id}`}
-        style={{ paddingHorizontal: 24 }}
-        onPress={() => setIsEditing(!isEditing)}
-      >
-        <Image source={isEditing ? cancelIcon : editIcon} />
-      </TouchableOpacity>
+      <View style={styles.itemIcon}>
+        <TouchableOpacity
+          testID={`trash-edit-${task.id}`}
+          onPress={() => setIsEditing(!isEditing)}
+        >
+          <Image source={isEditing ? cancelIcon : editIcon} />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity
-        testID={`trash-${task.id}`}
-        style={{ paddingHorizontal: 24 }}
-        onPress={() => removeTask(task.id)}
-      >
-        <Image source={trashIcon} />
-      </TouchableOpacity>
+      <View style={styles.itemIcon}>
+        {!isEditing &&
+          (<TouchableOpacity
+            testID={`trash-${task.id}`}
+            onPress={() => handleRemoveTask(task.id)}
+          >
+            <Image source={trashIcon} />
+          </TouchableOpacity>)}
+      </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
+  itemIcon: {
+    alignItems: 'center',
+    minWidth: 40,
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
+    // backgroundColor: '#ccc'
+  },
   taskButton: {
     flex: 1,
     paddingHorizontal: 24,
